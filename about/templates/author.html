@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Об авторе проекта{% endblock %}
+
+{% block content %}
+  <main role="main" class="container">
+    <div class="row">
+      <!-- Левый вспомогательный блок -->
+      <div class="col-md-4 mb-3 mt-1">
+        <div class="card">
+          <div class="card-body">
+            <ul class="list-group list-group-flush align-items-center">
+
+              <li class="list-group-item">
+                <div class="h3">
+                  Илья Боюр
+                </div> 
+              </li>
+
+              <li class="list-group-item">
+                {% load static %}
+                <img src="{% static 'author.jpg' %}" alt="Author Photo" width="250"/>
+              </li>
+
+              <li class="list-group-item">
+                <div class="btn-group btn-group-sm">
+                  <a class="btn btn-link" href="https://github.com/IlyaBoyur">
+                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"  alt="GitHub Logo" height="32">
+                  </a>
+                  
+                  <a class="btn btn-link" href="https://www.linkedin.com/in/ilya-boyur-link/">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/LinkedIn_Logo_2013.svg/1200px-LinkedIn_Logo_2013.svg.png" alt="LinkedIn Logo" height="32">
+                  </a>
+
+                  <a class="btn btn-link" href="https://vk.com/ibojur">
+                    <img src = "https://upload.wikimedia.org/wikipedia/commons/2/21/VK.com-logo.svg" alt="VK logo" height="32"/>
+                  </a>
+                </div><!-- btn-group -->
+              </li>
+
+            </ul>                                               
+          </div>                    
+        </div>                
+      </div>
+      <!-- Тело страницы -->
+      <div class="col-md-7">
+        <div class="card-body">
+          <div class="card-text">
+            <div class="h4">
+              Об авторе
+            </div>
+            <p>Автор проекта является заядлым любителем кутят.</p>
+          </div>
+        </div><!-- card-body -->
+      </div>
+    </div>
+  </main>
+{% endblock %} 

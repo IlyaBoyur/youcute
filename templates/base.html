@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  <title>{% block title %}Кутята{% endblock %} | Yatube</title>
+  <!-- Загрузка статики -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}">
+  <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+  <script src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>
+</head>
+
+<body style="min-height: 100vh; position: relative;">
+
+  {% include 'nav.html' %}
+  <main>
+    <div class="container", style="padding-top: 10vh; padding-bottom: 15vh;">
+      <h1>
+        {% block header %}<!-- Заголовок страницы -->{% endblock %}
+      </h1>
+      {% block content %}<!-- Содержимое страницы -->{% endblock %}
+    </div>
+  </main>
+  {% include 'footer.html' %}
+
+</body>
+
+</html>

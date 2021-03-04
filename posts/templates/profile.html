@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block content %}
+  <main role="main" class="container">
+    <div class="row">
+
+      {% include 'author_card.html' %}
+
+      <div class="col-md-9">
+        {% for post in page %}
+          {% include 'post_item.html' with post=post %}
+        {% endfor %}
+        
+        {% include 'paginator.html' with page=page paginator=paginator %}
+        
+      </div>
+
+    </div><!-- row -->
+  </main>
+{% endblock %}<!-- content -->

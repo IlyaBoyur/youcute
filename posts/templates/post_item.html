@@ -1,0 +1,45 @@
+<div class="card mb-3 mt-1 shadow-sm">
+
+  {% load thumbnail %}
+  {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
+    <img class="card-img" src="{{ im.url }}">
+  {% endthumbnail %}
+
+  <div class="card-body">
+    <p class="card-text">
+      <a name="post_{{ post.id }}" href="{% url 'profile' post.author.username %}">
+        <strong class="d-block text-gray-dark">@{{post.author.username}}</strong>
+      </a>
+      <p>{{ post.text|linebreaksbr }}</p>
+    </p>
+
+    {% if post.group %}
+      <a class="card-link muted" href="{% url 'group_posts' post.group.slug %}">
+        <strong class="d-block text-gray-dark">#{{ post.group }}</strong>
+      </a>
+    {% endif %}<!-- if post.group -->
+
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="btn-group">
+        {% if post.comments.exists %}
+        <div class="btn btn-sm">Комментариев: {{ post.comments.count }}</div>
+        {% endif %}<!-- if post.comments.exists -->
+
+        {% if user.is_authenticated %}
+          {% if page %}
+            <a class="btn btn-sm text-muted"
+            href="{% url 'post' post.author.username post.id %}"
+            role="button">Добавить комментарий</a>
+          {% endif %}
+          {% if user == post.author %}
+            <a class="btn btn-sm text-muted"
+            href="{% url 'post_edit' post.author.username post.id %}"
+            role="button">Редактировать</a>
+          {% endif %}
+        {% endif %}<!-- if user.is_authenticated -->
+
+      </div><!-- btn-group -->
+      <small class="text-muted">{{ post.pub_date|date:"d M Y G:i" }}</small>
+    </div>
+  </div><!-- card-body -->
+</div>
