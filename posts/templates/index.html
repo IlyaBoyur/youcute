@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 {% block title %}Последние обновления{% endblock %}
-{% block header %}Последние обновления на сайте{% endblock %}
 
 {% block content %}
 
-  {% load cache %}
-  {% cache index_page_timeout index_page %}
-    {% for post in page %}
-      {% include 'post_item.html' with post=post %}
-      <hr>
-    {% endfor %}
-  {% endcache %}
+  {% include 'menu.html' with index=True %}
+
+  <h1>Последние обновления на сайте</h1>
+  
+  {% for post in page %}
+    {% include 'post_item.html' with post=post %}
+    <hr>
+  {% endfor %}
 
   {% include 'paginator.html' with page=page paginator=paginator %}
 

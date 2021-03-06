@@ -18,10 +18,7 @@
   {% include 'nav.html' %}
   <main>
     <div class="container", style="padding-top: 10vh; padding-bottom: 15vh;">
-      <h1>
-        {% block header %}<!-- Заголовок страницы -->{% endblock %}
-      </h1>
-      {% block content %}<!-- Содержимое страницы -->{% endblock %}
+     {% block content %}<!-- Содержимое страницы -->{% endblock %}
     </div>
   </main>
   {% include 'footer.html' %}

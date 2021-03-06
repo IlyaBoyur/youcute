@@ -1,9 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Записи сообщества {{ group }}{% endblock %}
-{% block header %}{{ group }}{% endblock %}
 
 {% block content %}
-
+  <h1>{{ group }}</h1>
   <p>{{ group.description|linebreaksbr }}</p>
   
   {% for post in page %}
