@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Ваши подписки{% endblock %}
+
+{% block content %}
+
+  {% include 'menu.html' with follow=True %}
+
+  <h1>Ваши подписки</h1>
+
+  {% for post in page %}
+    {% include 'post_item.html' with post=post %}
+    <hr>
+  {% endfor %}
+
+  {% include 'paginator.html' with page=page paginator=paginator %}
+
+{% endblock %}<!-- content -->

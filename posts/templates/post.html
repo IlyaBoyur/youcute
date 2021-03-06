@@ -4,8 +4,10 @@
 {% block content %}
   <main role="main" class="container">
     <div class="row">
-      
-      {% include 'author_card.html' %}
+
+      <div class="col-md-3 mb-3 mt-1">
+        {% include 'author_card.html' %}
+      </div>
 
       <div class="col-md-9">
         {% include 'post_item.html' with post=post %}

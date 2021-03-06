@@ -2,10 +2,16 @@
 {% block title %}Профиль пользователя{% endblock %}
 
 {% block content %}
+  {% load user_filters %}
   <main role="main" class="container">
     <div class="row">
 
-      {% include 'author_card.html' %}
+      <div class="col-md-3 mb-3 mt-1">
+        {% include 'author_card.html' %}
+        {% if user.is_authenticated and user != author %}
+            {% include 'subscribe.html' with profile=author following=following %}
+        {% endif %}
+      </div>
 
       <div class="col-md-9">
         {% for post in page %}
