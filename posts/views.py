@@ -3,8 +3,8 @@ from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import CommentForm, PostForm
-from .models import Group, Post, User
-from .settings import POSTS_PER_PAGE, CACHED_TIME_INDEX
+from .models import Follow, Group, Post, User
+from .settings import POSTS_PER_PAGE
 
 
 def index(request):
@@ -14,7 +14,6 @@ def index(request):
     context = {
         "page": page,
         "paginator": paginator,
-        "index_page_timeout": CACHED_TIME_INDEX,
     }
     return render(request, "index.html", context)
 
@@ -48,10 +47,14 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
     paginator = Paginator(author.posts.all(), POSTS_PER_PAGE)
     page = paginator.get_page(request.GET.get("page"))
+    following = False
+    if request.user.is_authenticated:
+        following = request.user.follower.filter(author=author).exists()
     context = {
         "author": author,
         "page": page,
         "paginator": paginator,
+        "following": following,
     }
     return render(request, "profile.html", context)
 
@@ -94,14 +97,46 @@ def add_comment(request, username, post_id):
     return redirect("post", username=username, post_id=post_id)
 
 
-def page_not_found(request, exception):
-    return render(
-        request,
-        "misc/404.html",
-        {"path": request.path},
-        status=404,
+@login_required
+def follow_index(request):
+    posts_list = Post.objects.filter(
+        author__in=request.user.follower.values_list('author', flat=True)
     )
+    paginator = Paginator(posts_list, POSTS_PER_PAGE)
+    page = paginator.get_page(request.GET.get("page"))
+    context = {
+        "page": page,
+        "paginator": paginator,
+    }
+    return render(request, "follow.html", context)
+
+
+@login_required
+def profile_follow(request, username):
+    Follow.objects.create(
+        user=request.user,
+        author=get_object_or_404(User, username=username),
+    )
+    return redirect("profile", username=username)
+
+
+@login_required
+def profile_unfollow(request, username):
+    Follow.objects.filter(
+        user=request.user,
+        author=get_object_or_404(User, username=username),
+    ).delete()
+    return redirect("profile", username=username)
+
+
+def page_not_found(request, exception):
+    return render(request,
+                  "misc/404.html",
+                  {"path": request.path},
+                  status=404)
 
 
 def server_error(request):
-    return render(request, "misc/500.html", status=500)
+    return render(request,
+                  "misc/500.html",
+                  status=500)
