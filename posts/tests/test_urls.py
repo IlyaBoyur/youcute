@@ -35,6 +35,8 @@ class PostsURLTests(TestCase):
         # NON STATIC GENERATED URLS
         cls.POST_URL = reverse("post", args=[USER_NAME, cls.post.id])
         cls.POST_EDIT_URL = reverse("post_edit", args=[USER_NAME, cls.post.id])
+        cls.POST_COMMENT_URL = reverse("add_comment",
+                                       args=[USER_NAME, cls.post.id])
 
     def setUp(self):
         self.guest_client = Client()
@@ -95,6 +97,11 @@ class PostsURLTests(TestCase):
                 self.POST_EDIT_URL,
                 self.authorized_client_other,
                 self.POST_URL
+            ],
+            [
+                self.POST_COMMENT_URL,
+                self.guest_client,
+                f"{LOGIN_URL}?next={self.POST_COMMENT_URL}"
             ],
         ]
         for url, client, target_url in urls:

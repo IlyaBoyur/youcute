@@ -8,7 +8,7 @@ from django.test import TestCase, override_settings
 from django.test.client import Client
 from django.urls import reverse
 
-from posts.models import Group, Post, User
+from posts.models import Comment, Group, Post, User
 
 
 USER_NAME = "TestUser"
@@ -22,7 +22,7 @@ PROFILE_URL = reverse("profile", kwargs={"username": USER_NAME})
 GROUP_URL = reverse("group_posts", kwargs={"slug": GROUP_SLUG})
 
 
-@override_settings(MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR))
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp(dir=settings.BASE_DIR))
 class PostFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -119,3 +119,40 @@ class PostFormTests(TestCase):
                     with self.subTest(value=value):
                         form_field = response.context["form"].fields.get(value)
                         self.assertIsInstance(form_field, expected_type)
+
+
+class CommentFormTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(username=USER_NAME)
+        cls.post = Post.objects.create(
+            author=cls.user,
+            text="Тестовый пост",
+        )
+        cls.POST_URL = reverse("post", args=[USER_NAME, cls.post.id])
+        cls.POST_COMMENT_URL = reverse("add_comment",
+                                       args=[USER_NAME, cls.post.id])
+
+    def setUp(self):
+        self.authorized_client = Client()
+        self.authorized_client.force_login(self.user)
+
+    def test_create_new_comment(self):
+        """Валидная форма создает Comment."""
+        comment_count = Comment.objects.count()
+        form_data = {
+            "text": "Тестовый комментарий",
+        }
+        response = self.authorized_client.post(
+            self.POST_COMMENT_URL,
+            data=form_data,
+            follow=True,
+        )
+        self.assertRedirects(response, self.POST_URL)
+        self.assertEqual(Comment.objects.count(), comment_count + 1)
+        self.assertEqual(response.context["post"].comments.count(), 1)
+        added_comment = response.context["comments"][0]
+        self.assertEqual(added_comment.post, self.post)
+        self.assertEqual(added_comment.author, self.user)
+        self.assertEqual(added_comment.text, form_data["text"])

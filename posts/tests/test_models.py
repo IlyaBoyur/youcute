@@ -1,6 +1,7 @@
+from django import test
 from django.test import TestCase
 
-from posts.models import Group, Post, User
+from posts.models import Comment, Group, Post, User
 
 
 class PostModelTests(TestCase):
@@ -79,3 +80,44 @@ class GroupModelTests(TestCase):
         """__str__ возвращает поле title."""
         group = self.group
         self.assertEqual(group.title, str(group))
+
+
+class CommentModelTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        test_user = User.objects.create_user(username='TestUser')
+        post = Post.objects.create(
+            author=test_user,
+            text="Тестовый пост",
+        )
+        cls.comment = Comment.objects.create(
+            post=post,
+            author=test_user,
+            text="Тестовый коментарий",
+        )
+
+    def test_verbose_name(self):
+        """verbose_name в полях совпадает с ожидаемым."""
+        comment = self.comment
+        field_verboses = {
+            "text": "Текст комментария",
+            "created": "Дата публикации комментария",
+        }
+        for value, expected in field_verboses.items():
+            with self.subTest(value=value):
+                self.assertEqual(
+                    comment._meta.get_field(value).verbose_name, expected
+                )
+
+    def test_help_text(self):
+        """help_text в полях совпадает с ожидаемым."""
+        comment = self.comment
+        field_help_texts = {
+            "text": "Напишите комментарий",
+        }
+        for value, expected in field_help_texts.items():
+            with self.subTest(value=value):
+                self.assertEqual(
+                    comment._meta.get_field(value).help_text, expected
+                )

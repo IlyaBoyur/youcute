@@ -6,23 +6,28 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from posts.models import Group, Post, User
+from posts.models import Follow, Group, Post, User
 from posts.settings import POSTS_PER_PAGE
 
 
 USER_NAME = "TestUser"
+USER_NAME_OTHER = "TestUserOther"
 GROUP_SLUG = "test-group-slug"
 GROUP_OTHER_SLUG = "test-group-other-slug"
 
 # STATIC URLS
 INDEX_URL = reverse("index")
+FOLLOW_INDEX_URL = reverse("follow_index")
 # NON STATIC URLS
 PROFILE_URL = reverse("profile", kwargs={"username": USER_NAME})
+PROFILE_OTHER_URL = reverse("profile", kwargs={"username": USER_NAME_OTHER})
 GROUP_URL = reverse("group_posts", kwargs={"slug": GROUP_SLUG})
 GROUP_OTHER_URL = reverse("group_posts", kwargs={"slug": GROUP_OTHER_SLUG})
+FOLLOW_URL = reverse("profile_follow", args=[USER_NAME])
+UNFOLLOW_URL = reverse("profile_unfollow", args=[USER_NAME])
 
 
-@override_settings(MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR))
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp(dir=settings.BASE_DIR))
 class PostsPagesTests(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -145,3 +150,58 @@ class PaginatorPagesTests(TestCase):
         """Вторая страница по адресу группы содержит остальные посты группы."""
         response = self.guest_client.get(GROUP_URL + "?page=2")
         self.assertEqual(len(response.context["page"]), self.REST_GROUP_POSTS)
+
+
+class FollowsPagesTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user_bob = User.objects.create_user(username=USER_NAME)
+        cls.user_leo = User.objects.create_user(username=USER_NAME_OTHER)
+        cls.post_bob = Post.objects.create(
+            text="Пост Боба",
+            author=cls.user_bob,
+        )
+        cls.post_leo = Post.objects.create(
+            text="Пост Лео",
+            author=cls.user_leo,
+        )
+        # NON STATIC GENERATED URLS
+        cls.POST_BOB_URL = reverse("post", args=[USER_NAME, cls.post_bob.id])
+        cls.POST_LEO_URL = reverse("post",
+                                   args=[USER_NAME_OTHER, cls.post_leo.id])
+
+    def setUp(self):
+        self.authorized_client_bob = Client()
+        self.authorized_client_bob.force_login(self.user_bob)
+        self.authorized_client_leo = Client()
+        self.authorized_client_leo.force_login(self.user_leo)
+
+    def test_follow_auth_user_can_follow_other_user(self):
+        """Авторизованный пользователь может подписаться
+        на другого пользователя и отписаться от него."""
+        self.authorized_client_leo.get(FOLLOW_URL)
+        self.assertTrue(
+            self.user_leo.follower.filter(author=self.user_bob).exists()
+        )
+        self.authorized_client_leo.get(UNFOLLOW_URL)
+        self.assertFalse(
+            self.user_leo.follower.filter(author=self.user_bob).exists()
+        )
+
+    def test_follow_index_follower_sees_author_posts_in_subs_feed(self):
+        """Новый пост пользователя появляется в ленте того,
+        кто на него подписан."""
+        self.authorized_client_leo.get(FOLLOW_URL)
+        response = self.authorized_client_leo.get(FOLLOW_INDEX_URL)
+        self.assertIn(self.post_bob, response.context["page"])
+        self.authorized_client_leo.get(UNFOLLOW_URL)
+
+    def test_follow_index_non_follower_see_author_no_posts_in_subs_feed(self):
+        """Новый пост пользователя не появляется в ленте того,
+        кто не подписан на него."""
+        self.assertFalse(
+            self.user_bob.follower.filter(author=self.user_bob).exists()
+        )
+        response = self.authorized_client_bob.get(FOLLOW_INDEX_URL)
+        self.assertNotIn(self.post_leo, response.context["page"])

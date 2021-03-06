@@ -74,7 +74,7 @@ class Comment(models.Model):
         related_name="comments",
     )
     text = models.TextField(
-        "Текст",
+        "Текст комментария",
         help_text="Напишите комментарий",
     )
     created = models.DateTimeField(

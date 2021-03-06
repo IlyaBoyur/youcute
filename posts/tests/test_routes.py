@@ -22,9 +22,18 @@ class PostsRoutesTests(TestCase):
             # Static URLs
             "/": reverse("index"),
             "/new/": reverse("new_post"),
+            "/follow/": reverse("follow_index"),
             # Non static URLs
             f"/{user.username}/": reverse("profile", args=[user.username]),
             f"/group/{group.slug}/": reverse("group_posts", args=[group.slug]),
+            f"/{user.username}/follow/": reverse(
+                "profile_follow",
+                args=[user.username],
+            ),
+            f"/{user.username}/unfollow/": reverse(
+                "profile_unfollow",
+                args=[user.username],
+            ),
             # Non static generated URLs
             f"/{user.username}/{post.id}/": reverse(
                 "post",
@@ -32,6 +41,10 @@ class PostsRoutesTests(TestCase):
             ),
             f"/{user.username}/{post.id}/edit/": reverse(
                 "post_edit",
+                args=[user.username, post.id],
+            ),
+            f"/{user.username}/{post.id}/comment/": reverse(
+                "add_comment",
                 args=[user.username, post.id],
             ),
         }
