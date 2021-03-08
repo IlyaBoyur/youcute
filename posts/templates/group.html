@@ -6,7 +6,7 @@
   <p>{{ group.description|linebreaksbr }}</p>
   
   {% for post in page %}
-    {% include 'post_item.html' with post=post %}
+    {% include 'post_item.html' with post=post show_group=False %}
     <hr>
   {% endfor %}
 

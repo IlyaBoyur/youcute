@@ -22,9 +22,7 @@
   <div class="media-body card-body">
     <h5 class="mt-0">
       <a href="{% url 'profile' item.author.username %}"
-         name="comment_{{ item.id }}">
-         {{ item.author.username }}
-      </a>
+      name="comment_{{ item.id }}">{{ item.author.username }}</a>
     </h5>
     <p>{{ item.text | linebreaksbr }}</p>
     <small class="text-muted">{{ item.created|date:"d M Y G:i" }}</small>
