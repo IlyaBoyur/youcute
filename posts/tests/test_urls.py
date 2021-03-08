@@ -13,8 +13,8 @@ GROUP_SLUG = "test-group-slug"
 INDEX_URL = reverse("index")
 NEW_POST_URL = reverse("new_post")
 # NON STATIC URLS
-PROFILE_URL = reverse("profile", kwargs={"username": USER_NAME})
-GROUP_URL = reverse("group_posts", kwargs={"slug": GROUP_SLUG})
+PROFILE_URL = reverse("profile", args=[USER_NAME])
+GROUP_URL = reverse("group_posts", args=[GROUP_SLUG])
 UNKNOWN_URL = "/url_does_not_exist/"
 
 

@@ -18,8 +18,15 @@ GROUP_SLUG = "test-group-slug"
 INDEX_URL = reverse("index")
 NEW_POST_URL = reverse("new_post")
 # NON STATIC URLS
-PROFILE_URL = reverse("profile", kwargs={"username": USER_NAME})
-GROUP_URL = reverse("group_posts", kwargs={"slug": GROUP_SLUG})
+PROFILE_URL = reverse("profile", args=[USER_NAME])
+GROUP_URL = reverse("group_posts", args=[GROUP_SLUG])
+
+SMALL_GIF_CONTENT = (b'\x47\x49\x46\x38\x39\x61\x02\x00'
+                     b'\x01\x00\x80\x00\x00\x00\x00\x00'
+                     b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+                     b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+                     b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+                     b'\x0A\x00\x3B')
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp(dir=settings.BASE_DIR))
@@ -55,12 +62,7 @@ class PostFormTests(TestCase):
         self.assertEqual(posts_count, 1)
         uploaded = SimpleUploadedFile(
             "small_forms.gif",
-            content=(b'\x47\x49\x46\x38\x39\x61\x02\x00'
-                     b'\x01\x00\x80\x00\x00\x00\x00\x00'
-                     b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-                     b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-                     b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-                     b'\x0A\x00\x3B'),
+            content=SMALL_GIF_CONTENT,
             content_type="image/gif"
         )
         form_data = {
@@ -84,9 +86,15 @@ class PostFormTests(TestCase):
 
     def test_update_post(self):
         """Валидная форма обновляет существующий Post."""
+        uploaded = SimpleUploadedFile(
+            "small_forms_update.gif",
+            content=SMALL_GIF_CONTENT,
+            content_type="image/gif"
+        )
         form_data = {
             "group": self.group.id,
             "text": "Тестовый текст после редактирования",
+            "image": uploaded,
         }
         response = self.authorized_client.post(
             self.POST_EDIT_URL,
@@ -99,6 +107,7 @@ class PostFormTests(TestCase):
         self.assertEqual(updated_post.author, self.user)
         self.assertEqual(updated_post.group.id, form_data["group"])
         self.assertEqual(updated_post.text, form_data["text"])
+        self.assertEqual(updated_post.image, "posts/small_forms_update.gif")
 
     def test_page_post_form_show_correct_context(self):
         """Типы полей формы в словаре 'context' в ответе по URL-адресу

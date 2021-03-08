@@ -19,12 +19,19 @@ GROUP_OTHER_SLUG = "test-group-other-slug"
 INDEX_URL = reverse("index")
 FOLLOW_INDEX_URL = reverse("follow_index")
 # NON STATIC URLS
-PROFILE_URL = reverse("profile", kwargs={"username": USER_NAME})
-PROFILE_OTHER_URL = reverse("profile", kwargs={"username": USER_NAME_OTHER})
-GROUP_URL = reverse("group_posts", kwargs={"slug": GROUP_SLUG})
-GROUP_OTHER_URL = reverse("group_posts", kwargs={"slug": GROUP_OTHER_SLUG})
+PROFILE_URL = reverse("profile", args=[USER_NAME])
 FOLLOW_URL = reverse("profile_follow", args=[USER_NAME])
 UNFOLLOW_URL = reverse("profile_unfollow", args=[USER_NAME])
+GROUP_URL = reverse("group_posts", args=[GROUP_SLUG])
+PROFILE_OTHER_URL = reverse("profile", args=[USER_NAME_OTHER])
+GROUP_OTHER_URL = reverse("group_posts", args=[GROUP_OTHER_SLUG])
+
+SMALL_GIF_CONTENT = (b'\x47\x49\x46\x38\x39\x61\x02\x00'
+                     b'\x01\x00\x80\x00\x00\x00\x00\x00'
+                     b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+                     b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+                     b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+                     b'\x0A\x00\x3B')
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp(dir=settings.BASE_DIR))
@@ -43,12 +50,7 @@ class PostsPagesTests(TestCase):
         )
         uploaded = SimpleUploadedFile(
             "small_views.gif",
-            content=(b'\x47\x49\x46\x38\x39\x61\x02\x00'
-                     b'\x01\x00\x80\x00\x00\x00\x00\x00'
-                     b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-                     b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-                     b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-                     b'\x0A\x00\x3B'),
+            content=SMALL_GIF_CONTENT,
             content_type="image/gif"
         )
         cls.post = Post.objects.create(
