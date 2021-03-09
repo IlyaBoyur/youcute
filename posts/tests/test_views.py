@@ -2,6 +2,7 @@ import shutil
 import tempfile
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
@@ -73,6 +74,7 @@ class PostsPagesTests(TestCase):
 
     def test_page_show_post_in_context(self):
         """Контекст шаблона ссодержит 'post'."""
+        cache.clear()
         urls_with_page = [
             [INDEX_URL, self.guest_client],
             [GROUP_URL, self.guest_client],
@@ -113,6 +115,16 @@ class PostsPagesTests(TestCase):
                     self.user
                 )
 
+    def test_page_index_cache_works_as_expected(self):
+        """Шаблон 'index' кэширован."""
+        response_cached = self.guest_client.get(INDEX_URL)
+        Post.objects.create(
+            text="Тестовый пост отсутствует в кэше",
+            author=self.user,
+        )
+        response_new = self.guest_client.get(INDEX_URL)
+        self.assertEqual(response_cached.content, response_new.content)
+
 
 class PaginatorPagesTests(TestCase):
     @classmethod
@@ -130,6 +142,7 @@ class PaginatorPagesTests(TestCase):
 
     def test_index_first_page_contains_number_of_posts(self):
         """Первая страница по адресу "index" содержит POSTS_PER_PAGE постов."""
+        cache.clear()
         response = self.guest_client.get(INDEX_URL)
         self.assertEqual(len(response.context["page"]), POSTS_PER_PAGE)
 

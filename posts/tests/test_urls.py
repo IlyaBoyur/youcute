@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -76,6 +77,7 @@ class PostsURLTests(TestCase):
     def test_urls_use_correct_template(self):
         """URL-адрес использует соответствующий ему html-шаблон,
         если у пользователя есть права на просмотр страниц по данным URL."""
+        cache.clear()
         url_templates = [
             [INDEX_URL, self.guest_client, "index.html"],
             [NEW_POST_URL, self.authorized_client_other, "new_post.html"],
