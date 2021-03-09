@@ -1,7 +1,7 @@
 from django.test.testcases import TestCase
 from django.urls import reverse
 
-from posts.models import Group, Post, User
+from posts.models import Post, User
 
 
 class PostsRoutesTests(TestCase):
