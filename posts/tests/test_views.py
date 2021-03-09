@@ -6,7 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from posts.models import Group, Post, User
+from posts.models import Follow, Group, Post, User
 from posts.settings import POSTS_PER_PAGE
 
 
@@ -62,16 +62,14 @@ class PostsPagesTests(TestCase):
         # NON STATIC GENERATED URLS
         cls.POST_URL = reverse("post", args=[USER_NAME, cls.post.id])
         cls.POST_EDIT_URL = reverse("post_edit", args=[USER_NAME, cls.post.id])
+        cls.guest_client = Client()
+        cls.authorized_client = Client()
+        cls.authorized_client.force_login(cls.user)
 
     @classmethod
     def tearDownClass(cls):
         shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
         super().tearDownClass()
-
-    def setUp(self):
-        self.guest_client = Client()
-        self.authorized_client = Client()
-        self.authorized_client.force_login(self.user)
 
     def test_page_show_post_in_context(self):
         """Контекст шаблона ссодержит 'post'."""
@@ -128,9 +126,7 @@ class PaginatorPagesTests(TestCase):
             Post.objects.create(text=f"{i}", author=user)
         cls.REST_GROUP_POSTS = 3
         cls.REST_POSTS = 7
-
-    def setUp(self):
-        self.guest_client = Client()
+        cls.guest_client = Client()
 
     def test_index_first_page_contains_number_of_posts(self):
         """Первая страница по адресу "index" содержит POSTS_PER_PAGE постов."""
@@ -163,6 +159,11 @@ class FollowsPagesTests(TestCase):
         cls.post_bob = Post.objects.create(
             text="Пост Боба",
             author=cls.user_bob,
+            image=SimpleUploadedFile(
+                "small_bob.gif",
+                content=SMALL_GIF_CONTENT,
+                content_type="image/gif"
+            ),
         )
         cls.post_leo = Post.objects.create(
             text="Пост Лео",
@@ -172,38 +173,55 @@ class FollowsPagesTests(TestCase):
         cls.POST_BOB_URL = reverse("post", args=[USER_NAME, cls.post_bob.id])
         cls.POST_LEO_URL = reverse("post",
                                    args=[USER_NAME_OTHER, cls.post_leo.id])
-
-    def setUp(self):
-        self.authorized_client_bob = Client()
-        self.authorized_client_bob.force_login(self.user_bob)
-        self.authorized_client_leo = Client()
-        self.authorized_client_leo.force_login(self.user_leo)
+        cls.authorized_client_bob = Client()
+        cls.authorized_client_bob.force_login(cls.user_bob)
+        cls.authorized_client_leo = Client()
+        cls.authorized_client_leo.force_login(cls.user_leo)
 
     def test_follow_auth_user_can_follow_other_user(self):
         """Авторизованный пользователь может подписаться
-        на другого пользователя и отписаться от него."""
+        на другого пользователя."""
+        self.assertFalse(
+            Follow.objects.filter(
+                user=self.user_leo,
+                author=self.user_bob,
+            ).exists()
+        )
         self.authorized_client_leo.get(FOLLOW_URL)
         self.assertTrue(
-            self.user_leo.follower.filter(author=self.user_bob).exists()
+            Follow.objects.filter(
+                user=self.user_leo,
+                author=self.user_bob,
+            ).exists()
         )
+
+    def test_follow_auth_user_can_unfollow_other_user(self):
+        """Авторизованный пользователь может отписаться
+        от пользователя, на которого он подписан."""
+        Follow.objects.create(user=self.user_leo, author=self.user_bob)
         self.authorized_client_leo.get(UNFOLLOW_URL)
         self.assertFalse(
-            self.user_leo.follower.filter(author=self.user_bob).exists()
+            Follow.objects.filter(
+                user=self.user_leo,
+                author=self.user_bob,
+            ).exists()
         )
 
     def test_follow_index_follower_sees_author_posts_in_subs_feed(self):
         """Новый пост пользователя появляется в ленте того,
         кто на него подписан."""
-        self.authorized_client_leo.get(FOLLOW_URL)
+        Follow.objects.create(user=self.user_leo, author=self.user_bob)
         response = self.authorized_client_leo.get(FOLLOW_INDEX_URL)
         self.assertIn(self.post_bob, response.context["page"])
-        self.authorized_client_leo.get(UNFOLLOW_URL)
 
     def test_follow_index_non_follower_see_author_no_posts_in_subs_feed(self):
         """Новый пост пользователя не появляется в ленте того,
         кто не подписан на него."""
         self.assertFalse(
-            self.user_bob.follower.filter(author=self.user_bob).exists()
+            Follow.objects.filter(
+                user=self.user_bob,
+                author=self.user_leo,
+            ).exists()
         )
         response = self.authorized_client_bob.get(FOLLOW_INDEX_URL)
         self.assertNotIn(self.post_leo, response.context["page"])

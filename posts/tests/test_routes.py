@@ -9,13 +9,9 @@ class PostsRoutesTests(TestCase):
         """URL-адрес, рассчитанный через name,
         соответствует ожидаемому видимому URL."""
         user = User.objects.create_user(username="TestUser")
-        group = Group.objects.create(
-            title="Test Group",
-            slug="test-group-slug",
-        )
+        GROUP_SLUG = "test-group-slug"
         post = Post.objects.create(
             author=user,
-            group=group,
             text="Тестовый пост",
         )
         routes = {
@@ -25,7 +21,7 @@ class PostsRoutesTests(TestCase):
             "/follow/": reverse("follow_index"),
             # Non static URLs
             f"/{user.username}/": reverse("profile", args=[user.username]),
-            f"/group/{group.slug}/": reverse("group_posts", args=[group.slug]),
+            f"/group/{GROUP_SLUG}/": reverse("group_posts", args=[GROUP_SLUG]),
             f"/{user.username}/follow/": reverse(
                 "profile_follow",
                 args=[user.username],

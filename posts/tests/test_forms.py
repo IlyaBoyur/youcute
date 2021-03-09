@@ -53,6 +53,7 @@ class PostFormTests(TestCase):
         super().tearDownClass()
 
     def setUp(self):
+        self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
@@ -84,6 +85,15 @@ class PostFormTests(TestCase):
         self.assertEqual(created_post.text, form_data["text"])
         self.assertEqual(created_post.image, "posts/small_forms.gif")
 
+    def test_create_new_post_guest(self):
+        """Гость не может создать пост."""
+        posts_count = Post.objects.count()
+        self.guest_client.post(
+            NEW_POST_URL,
+            data={"group": self.group.id, "text": "Тестовый текст"},
+        )
+        self.assertEqual(posts_count, Post.objects.count())
+
     def test_update_post(self):
         """Валидная форма обновляет существующий Post."""
         uploaded = SimpleUploadedFile(
@@ -108,6 +118,15 @@ class PostFormTests(TestCase):
         self.assertEqual(updated_post.group.id, form_data["group"])
         self.assertEqual(updated_post.text, form_data["text"])
         self.assertEqual(updated_post.image, "posts/small_forms_update.gif")
+
+    def test_update_post_guest(self):
+        """Гость не может редактировать пост."""
+        posts = list(Post.objects.order_by('-pub_date'))
+        self.guest_client.post(
+            self.POST_EDIT_URL,
+            data={"group": self.group.id, "text": "Измененный текст"},
+        )
+        self.assertEqual(posts, list(Post.objects.order_by('-pub_date')))
 
     def test_page_post_form_show_correct_context(self):
         """Типы полей формы в словаре 'context' в ответе по URL-адресу
@@ -160,7 +179,7 @@ class CommentFormTests(TestCase):
         )
         self.assertRedirects(response, self.POST_URL)
         self.assertEqual(Comment.objects.count(), comment_count + 1)
-        self.assertEqual(response.context["post"].comments.count(), 1)
+        self.assertEqual(len(response.context["comments"]), 1)
         added_comment = response.context["comments"][0]
         self.assertEqual(added_comment.post, self.post)
         self.assertEqual(added_comment.author, self.user)

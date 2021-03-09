@@ -11,11 +11,14 @@ GROUP_SLUG = "test-group-slug"
 
 # STATIC URLS
 INDEX_URL = reverse("index")
+FOLLOW_INDEX_URL = reverse("follow_index")
 NEW_POST_URL = reverse("new_post")
+UNKNOWN_URL = "/url_does_not_exist/"
 # NON STATIC URLS
 PROFILE_URL = reverse("profile", args=[USER_NAME])
+FOLLOW_URL = reverse("profile_follow", args=[USER_NAME])
+UNFOLLOW_URL = reverse("profile_unfollow", args=[USER_NAME])
 GROUP_URL = reverse("group_posts", args=[GROUP_SLUG])
-UNKNOWN_URL = "/url_does_not_exist/"
 
 
 class PostsURLTests(TestCase):
@@ -37,13 +40,11 @@ class PostsURLTests(TestCase):
         cls.POST_EDIT_URL = reverse("post_edit", args=[USER_NAME, cls.post.id])
         cls.POST_COMMENT_URL = reverse("add_comment",
                                        args=[USER_NAME, cls.post.id])
-
-    def setUp(self):
-        self.guest_client = Client()
-        self.authorized_client = Client()
-        self.authorized_client.force_login(self.user)
-        self.authorized_client_other = Client()
-        self.authorized_client_other.force_login(self.user_other)
+        cls.guest_client = Client()
+        cls.authorized_client = Client()
+        cls.authorized_client.force_login(cls.user)
+        cls.authorized_client_other = Client()
+        cls.authorized_client_other.force_login(cls.user_other)
 
     def test_posts_url_exists_at_desired_location(self):
         """Страницы возвращают ожидаемый код ответа
@@ -51,7 +52,7 @@ class PostsURLTests(TestCase):
         urls = [
             [INDEX_URL, self.guest_client, 200],
             [NEW_POST_URL, self.guest_client, 302],
-            [NEW_POST_URL, self.authorized_client_other, 200],
+            [NEW_POST_URL, self.authorized_client, 200],
             [PROFILE_URL, self.guest_client, 200],
             [GROUP_URL, self.guest_client, 200],
             [self.POST_URL, self.guest_client, 200],
@@ -59,6 +60,14 @@ class PostsURLTests(TestCase):
             [self.POST_EDIT_URL, self.authorized_client_other, 302],
             [self.POST_EDIT_URL, self.authorized_client, 200],
             [UNKNOWN_URL, self.guest_client, 404],
+            [self.POST_COMMENT_URL, self.guest_client, 302],
+            [self.POST_COMMENT_URL, self.authorized_client, 302],
+            [FOLLOW_URL, self.guest_client, 302],
+            [FOLLOW_URL, self.authorized_client, 302],
+            [UNFOLLOW_URL, self.guest_client, 302],
+            [UNFOLLOW_URL, self.authorized_client, 302],
+            [FOLLOW_INDEX_URL, self.guest_client, 302],
+            [FOLLOW_INDEX_URL, self.authorized_client, 200],
         ]
         for url, client, response_code in urls:
             with self.subTest(value=url):
@@ -75,6 +84,7 @@ class PostsURLTests(TestCase):
             [self.POST_URL, self.guest_client, "post.html"],
             [self.POST_EDIT_URL, self.authorized_client, "new_post.html"],
             [UNKNOWN_URL, self.guest_client, "misc/404.html"],
+            [FOLLOW_INDEX_URL, self.authorized_client, "follow.html"],
         ]
         for url, client, template in url_templates:
             with self.subTest(value=url):
@@ -102,6 +112,36 @@ class PostsURLTests(TestCase):
                 self.POST_COMMENT_URL,
                 self.guest_client,
                 f"{LOGIN_URL}?next={self.POST_COMMENT_URL}"
+            ],
+            [
+                self.POST_COMMENT_URL,
+                self.authorized_client_other,
+                self.POST_URL
+            ],
+            [
+                FOLLOW_URL,
+                self.guest_client,
+                f"{LOGIN_URL}?next={FOLLOW_URL}"
+            ],
+            [
+                FOLLOW_URL,
+                self.authorized_client_other,
+                PROFILE_URL
+            ],
+            [
+                UNFOLLOW_URL,
+                self.guest_client,
+                f"{LOGIN_URL}?next={UNFOLLOW_URL}"
+            ],
+            [
+                UNFOLLOW_URL,
+                self.authorized_client_other,
+                PROFILE_URL
+            ],
+            [
+                FOLLOW_INDEX_URL,
+                self.guest_client,
+                f"{LOGIN_URL}?next={FOLLOW_INDEX_URL}"
             ],
         ]
         for url, client, target_url in urls:

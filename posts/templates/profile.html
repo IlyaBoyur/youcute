@@ -9,7 +9,7 @@
       <div class="col-md-3 mb-3 mt-1">
         {% include 'author_card.html' %}
         {% if user.is_authenticated and user != author %}
-            {% include 'subscribe.html' with profile=author following=following %}
+          {% include 'subscribe.html' with profile=author following=following %}
         {% endif %}
       </div>
 
