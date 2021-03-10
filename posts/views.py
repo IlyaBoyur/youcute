@@ -62,13 +62,12 @@ def profile(request, username):
 
 
 def post_view(request, username, post_id):
-    post_author = get_object_or_404(User, username=username)
-    post = get_object_or_404(Post, id=post_id, author=post_author)
+    post = get_object_or_404(Post, id=post_id, author__username=username)
     following = (request.user.is_authenticated
-                 and request.user != post_author
-                 and request.user.follower.filter(author=post_author).exists())
+                 and request.user != post.author
+                 and request.user.follower.filter(author=post.author).exists())
     context = {
-        "author": post_author,
+        "author": post.author,
         "post": post,
         "comments": post.comments.all(),
         "form": CommentForm(),
@@ -130,12 +129,11 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    follow = get_object_or_404(
+    get_object_or_404(
         Follow,
         user=request.user,
         author__username=username
-    )
-    follow.delete()
+    ).delete()
     return redirect("profile", username=username)
 
 
