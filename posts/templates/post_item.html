@@ -13,7 +13,7 @@
       <p>{{ post.text|linebreaksbr }}</p>
     </p>
 
-    {% if post.group and show_group %}
+    {% if post.group and not skip_group %}
       <a class="card-link muted" href="{% url 'group_posts' post.group.slug %}">
         <strong class="d-block text-gray-dark">#{{ post.group }}</strong>
       </a>
