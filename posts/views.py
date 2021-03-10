@@ -49,9 +49,9 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
     paginator = Paginator(author.posts.all(), POSTS_PER_PAGE)
     page = paginator.get_page(request.GET.get("page"))
-    following = (request.user.follower.filter(author=author).exists()
-                 if request.user.is_authenticated and request.user != author
-                 else False)
+    following = (request.user.is_authenticated and
+                 request.user != author and
+                 request.user.follower.filter(author=author).exists())
     context = {
         "author": author,
         "page": page,
@@ -62,13 +62,13 @@ def profile(request, username):
 
 
 def post_view(request, username, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    author = post.author
-    following = (request.user.follower.filter(author=author).exists()
-                 if request.user.is_authenticated and request.user != author
-                 else False)
+    post_author = get_object_or_404(User, username=username)
+    post = get_object_or_404(Post, id=post_id, author=post_author)
+    following = (request.user.is_authenticated and
+                 request.user != post_author and
+                 request.user.follower.filter(author=post_author).exists())
     context = {
-        "author": author,
+        "author": post_author,
         "post": post,
         "comments": post.comments.all(),
         "form": CommentForm(),
@@ -94,7 +94,7 @@ def post_edit(request, username, post_id):
 
 @login_required
 def add_comment(request, username, post_id):
-    post = get_object_or_404(Post, id=post_id)
+    post = get_object_or_404(Post, id=post_id, author__username=username)
     form = CommentForm(request.POST or None)
     if form.is_valid():
         comment = form.save(commit=False)
@@ -130,10 +130,12 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    author = get_object_or_404(User, username=username)
-    follow = request.user.follower.filter(author=author)
-    if follow.exists():
-        follow.delete()
+    follow = get_object_or_404(
+        Follow,
+        user=request.user,
+        author__username=username
+    )
+    follow.delete()
     return redirect("profile", username=username)
 
 
