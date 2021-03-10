@@ -66,7 +66,7 @@ class PostsURLTests(TestCase):
             [FOLLOW_URL, self.guest_client, 302],
             [FOLLOW_URL, self.authorized_client, 302],
             [UNFOLLOW_URL, self.guest_client, 302],
-            [UNFOLLOW_URL, self.authorized_client, 302],
+            [UNFOLLOW_URL, self.authorized_client, 404],
             [FOLLOW_INDEX_URL, self.guest_client, 302],
             [FOLLOW_INDEX_URL, self.authorized_client, 200],
         ]

@@ -55,7 +55,7 @@ class PostsPagesTests(TestCase):
             content_type="image/gif"
         )
         cls.post = Post.objects.create(
-            text="Тестовый пост с группой",
+            text="Пост с группой",
             author=cls.user,
             group=cls.group,
             image=uploaded,
@@ -118,12 +118,17 @@ class PostsPagesTests(TestCase):
     def test_page_index_cache_works_as_expected(self):
         """Шаблон 'index' кэширован."""
         response_cached = self.guest_client.get(INDEX_URL)
-        Post.objects.create(
-            text="Тестовый пост отсутствует в кэше",
+        post = Post.objects.create(
+            text="Пост отсутствует в кэше",
             author=self.user,
         )
         response_new = self.guest_client.get(INDEX_URL)
         self.assertEqual(response_cached.content, response_new.content)
+        cache.clear()
+        self.assertEqual(
+            post,
+            self.guest_client.get(INDEX_URL).context["page"][0]
+        )
 
 
 class PaginatorPagesTests(TestCase):

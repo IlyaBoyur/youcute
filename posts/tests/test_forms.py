@@ -121,12 +121,12 @@ class PostFormTests(TestCase):
 
     def test_update_post_guest(self):
         """Гость не может редактировать пост."""
-        posts = list(Post.objects.order_by('-pub_date'))
+        post_before_edit = self.post
         self.guest_client.post(
             self.POST_EDIT_URL,
             data={"group": self.group.id, "text": "Измененный текст"},
         )
-        self.assertEqual(posts, list(Post.objects.order_by('-pub_date')))
+        self.assertEqual(post_before_edit, self.post)
 
     def test_page_post_form_show_correct_context(self):
         """Типы полей формы в словаре 'context' в ответе по URL-адресу
