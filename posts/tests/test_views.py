@@ -118,16 +118,15 @@ class PostsPagesTests(TestCase):
     def test_page_index_cache_works_as_expected(self):
         """Шаблон 'index' кэширован."""
         response_cached = self.guest_client.get(INDEX_URL)
-        post = Post.objects.create(
-            text="Пост отсутствует в кэше",
-            author=self.user,
-        )
-        response_new = self.guest_client.get(INDEX_URL)
-        self.assertEqual(response_cached.content, response_new.content)
-        cache.clear()
+        Post.objects.create(text="Пост отсутствует в кэше", author=self.user)
         self.assertEqual(
-            post,
-            self.guest_client.get(INDEX_URL).context["page"][0]
+            response_cached.content,
+            self.guest_client.get(INDEX_URL).content
+        )
+        cache.clear()
+        self.assertNotEqual(
+            response_cached.content,
+            self.guest_client.get(INDEX_URL).content
         )
 
 
