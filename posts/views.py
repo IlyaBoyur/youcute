@@ -49,9 +49,9 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
     paginator = Paginator(author.posts.all(), POSTS_PER_PAGE)
     page = paginator.get_page(request.GET.get("page"))
-    following = (request.user.is_authenticated and
-                 request.user != author and
-                 request.user.follower.filter(author=author).exists())
+    following = (request.user.is_authenticated
+                 and request.user != author
+                 and request.user.follower.filter(author=author).exists())
     context = {
         "author": author,
         "page": page,
@@ -64,9 +64,9 @@ def profile(request, username):
 def post_view(request, username, post_id):
     post_author = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, id=post_id, author=post_author)
-    following = (request.user.is_authenticated and
-                 request.user != post_author and
-                 request.user.follower.filter(author=post_author).exists())
+    following = (request.user.is_authenticated
+                 and request.user != post_author
+                 and request.user.follower.filter(author=post_author).exists())
     context = {
         "author": post_author,
         "post": post,
