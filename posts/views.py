@@ -11,6 +11,8 @@ from .settings import CACHED_TIME_INDEX, POSTS_PER_PAGE
 @cache_page(CACHED_TIME_INDEX)
 def index(request):
     posts_list = Post.objects.all()
+    posts_list = posts_list.select_related("author", "group")
+    posts_list = posts_list.prefetch_related("comments")
     paginator = Paginator(posts_list, POSTS_PER_PAGE)
     page = paginator.get_page(request.GET.get("page"))
     context = {
@@ -23,6 +25,8 @@ def index(request):
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     posts = group.posts.all()
+    posts = posts.select_related("author", "group")
+    posts = posts.prefetch_related("comments")
     paginator = Paginator(posts, POSTS_PER_PAGE)
     page = paginator.get_page(request.GET.get("page"))
     context = {
@@ -47,7 +51,10 @@ def new_post(request):
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
-    paginator = Paginator(author.posts.all(), POSTS_PER_PAGE)
+    author_posts = author.posts.all()
+    author_posts = author_posts.select_related("author", "group")
+    author_posts = author_posts.prefetch_related("comments")
+    paginator = Paginator(author_posts, POSTS_PER_PAGE)
     page = paginator.get_page(request.GET.get("page"))
     following = (request.user.is_authenticated
                  and request.user != author
@@ -106,6 +113,8 @@ def add_comment(request, username, post_id):
 @login_required
 def follow_index(request):
     posts = Post.objects.filter(author__following__user=request.user)
+    posts = posts.select_related("author", "group")
+    posts = posts.prefetch_related("comments")
     paginator = Paginator(posts, POSTS_PER_PAGE)
     page = paginator.get_page(request.GET.get("page"))
     context = {
