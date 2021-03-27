@@ -167,6 +167,7 @@ class PaginatorPagesTests(TestCase):
         self.assertEqual(len(response.context["page"]), self.REST_GROUP_POSTS)
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp(dir=settings.BASE_DIR))
 class FollowsPagesTests(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -194,6 +195,11 @@ class FollowsPagesTests(TestCase):
         cls.authorized_client_bob.force_login(cls.user_bob)
         cls.authorized_client_leo = Client()
         cls.authorized_client_leo.force_login(cls.user_leo)
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+        super().tearDownClass()
 
     def test_follow_auth_user_can_follow_other_user(self):
         """Авторизованный пользователь может подписаться
