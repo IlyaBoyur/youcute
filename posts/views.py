@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import cache_page
 
-from .forms import CommentForm, PostForm
+from .forms import CommentForm, GroupForm, PostForm
 from .models import Follow, Group, Post, User
 from .settings import CACHED_TIME_INDEX, POSTS_PER_PAGE
 
@@ -47,6 +47,15 @@ def new_post(request):
     post.author = request.user
     post.save()
     return redirect("index")
+
+
+@login_required
+def new_group(request):
+    form = GroupForm(request.POST or None)
+    if not form.is_valid():
+        return render(request, "new_group.html", {"form": form})
+    group = form.save()
+    return redirect("group_posts", slug=group.slug)
 
 
 def profile(request, username):
