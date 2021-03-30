@@ -9,6 +9,7 @@ def year(request):
         'year': dt.datetime.now().year
     }
 
+
 def logo_text(request):
     """
     Добавляет логотип в виде текса.
