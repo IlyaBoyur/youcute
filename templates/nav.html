@@ -11,6 +11,9 @@
   <!-- Toggled Navbar -->
   <div class="collapse navbar-collapse" id=collapsibleNavbar>
     <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'index' %}">Главная</a>
+      </li>
       {% if user.is_authenticated %}
         <li class="nav-item">
           <a class="nav-link" href="{% url 'new_post' %}">Новая запись</a>
@@ -19,15 +22,18 @@
     </ul>
     <ul class="navbar-nav navbar-right">
       {% if user.is_authenticated %}
-        <li class="nav-item">
-          <span class="navbar-text">{{ user.username }}</span>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" 
+          role="button" data-toggle="dropdown" aria-haspopup="true"
+          aria-expanded="false">{{ user.username }}</a>
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{% url 'profile' user.username %}">Мой профиль</a>
+            <a class="dropdown-item" href="{% url 'password_change' %}">Изменить пароль</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'logout' %}">Выйти</a>
+          </div>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'password_change' %}">Изменить пароль</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'logout' %}">Выйти</a>
-        </li>
+
       {% else %}
         <li class="nav-item">
           <a class="nav-link" href="{% url 'login' %}">Войти</a>
