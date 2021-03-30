@@ -111,5 +111,6 @@ class UserProfile(models.Model):
     )
     description = models.TextField(
         "Об авторе",
+        blank=True,
         help_text="Расскажите о себе",
     )
