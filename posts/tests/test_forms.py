@@ -13,13 +13,16 @@ from posts.models import Comment, Group, Post, User
 
 USER_NAME = "TestUser"
 GROUP_SLUG = "test-group-slug"
+GROUP_SLUG_OTHER = "test-group-slug-other"
 
 # STATIC URLS
 INDEX_URL = reverse("index")
 NEW_POST_URL = reverse("new_post")
+NEW_GROUP_URL = reverse("new_group")
 # NON STATIC URLS
 PROFILE_URL = reverse("profile", args=[USER_NAME])
 GROUP_URL = reverse("group_posts", args=[GROUP_SLUG])
+GROUP_OTHER_URL = reverse("group_posts", args=[GROUP_SLUG_OTHER])
 
 SMALL_GIF_CONTENT = (b'\x47\x49\x46\x38\x39\x61\x02\x00'
                      b'\x01\x00\x80\x00\x00\x00\x00\x00'
@@ -86,7 +89,7 @@ class PostFormTests(TestCase):
         self.assertEqual(created_post.image, "posts/small_forms.gif")
 
     def test_create_new_post_guest(self):
-        """Гость не может создать пост."""
+        """Гость не может создать Post."""
         posts_count = Post.objects.count()
         self.guest_client.post(
             NEW_POST_URL,
@@ -120,7 +123,7 @@ class PostFormTests(TestCase):
         self.assertEqual(updated_post.image, "posts/small_forms_update.gif")
 
     def test_update_post_guest(self):
-        """Гость не может редактировать пост."""
+        """Гость не может редактировать Post."""
         post_before_edit = Post.objects.get(
             id=self.post.id,
             author__username=USER_NAME
@@ -190,3 +193,66 @@ class CommentFormTests(TestCase):
         self.assertEqual(added_comment.post, self.post)
         self.assertEqual(added_comment.author, self.user)
         self.assertEqual(added_comment.text, form_data["text"])
+
+
+class GroupFormTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(username=USER_NAME)
+        cls.group = Group.objects.create(
+            title="Тестовая группа",
+            slug=GROUP_SLUG,
+        )
+        cls.guest_client = Client()
+        cls.authorized_client = Client()
+        cls.authorized_client.force_login(cls.user)
+
+    def test_create_group(self):
+        """Валидная форма создает Group."""
+        groups_count = Group.objects.count()
+        self.assertEqual(groups_count, 1)
+        form_data = {
+            "title": "Заголовок другой тестовой группы",
+            "slug": GROUP_SLUG_OTHER,
+            "description": "Описание другой тестовой группы",
+        }
+        response = self.authorized_client.post(
+            NEW_GROUP_URL,
+            data=form_data,
+            follow=True,
+        )
+        self.assertRedirects(response, GROUP_OTHER_URL)
+        self.assertEqual(Group.objects.count(), groups_count + 1)
+        created_group = response.context["group"]
+        self.assertEqual(created_group.title, form_data["title"])
+        self.assertEqual(created_group.slug, form_data["slug"])
+        self.assertEqual(created_group.description, form_data["description"])
+
+    def test_create_group_guest(self):
+        """Гость не может создать Group."""
+        groups_count = Group.objects.count()
+        self.guest_client.post(
+            NEW_GROUP_URL,
+            data={"title": "Заголовок", "description": "Описание"},
+        )
+        self.assertEqual(groups_count, Group.objects.count())
+
+    def test_group_form_show_correct_context(self):
+        """Типы полей формы в словаре 'context' в ответе по URL-адресу
+        соответствуют ожиданиям."""
+        urls = [
+            NEW_GROUP_URL,
+        ]
+        for url in urls:
+            with self.subTest(value=url):
+                response = self.authorized_client.get(url)
+                form_fields = {
+                    "title": forms.fields.CharField,
+                    "slug": forms.fields.SlugField,
+                    "description": forms.fields.CharField,
+                }
+                for value, expected_type in form_fields.items():
+                    with self.subTest(value=value):
+                        form_field = response.context["form"].fields.get(value)
+                        self.assertIsInstance(form_field, expected_type)

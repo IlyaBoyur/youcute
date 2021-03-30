@@ -14,6 +14,7 @@ GROUP_SLUG = "test-group-slug"
 INDEX_URL = reverse("index")
 FOLLOW_INDEX_URL = reverse("follow_index")
 NEW_POST_URL = reverse("new_post")
+NEW_GROUP_URL = reverse("new_group")
 UNKNOWN_URL = "/url_does_not_exist/"
 # NON STATIC URLS
 PROFILE_URL = reverse("profile", args=[USER_NAME])
@@ -56,6 +57,8 @@ class PostsURLTests(TestCase):
             [NEW_POST_URL, self.authorized_client, 200],
             [PROFILE_URL, self.guest_client, 200],
             [GROUP_URL, self.guest_client, 200],
+            [NEW_GROUP_URL, self.guest_client, 302],
+            [NEW_GROUP_URL, self.authorized_client, 200],
             [self.POST_URL, self.guest_client, 200],
             [self.POST_EDIT_URL, self.guest_client, 302],
             [self.POST_EDIT_URL, self.authorized_client_other, 302],
@@ -81,6 +84,7 @@ class PostsURLTests(TestCase):
         url_templates = [
             [INDEX_URL, self.guest_client, "index.html"],
             [NEW_POST_URL, self.authorized_client_other, "new_post.html"],
+            [NEW_GROUP_URL, self.authorized_client_other, "new_group.html"],
             [PROFILE_URL, self.guest_client, "profile.html"],
             [GROUP_URL, self.guest_client, "group.html"],
             [self.POST_URL, self.guest_client, "post.html"],
@@ -109,6 +113,11 @@ class PostsURLTests(TestCase):
                 self.POST_EDIT_URL,
                 self.authorized_client_other,
                 self.POST_URL
+            ],
+            [
+                NEW_GROUP_URL,
+                self.guest_client,
+                f"{LOGIN_URL}?next={NEW_GROUP_URL}"
             ],
             [
                 self.POST_COMMENT_URL,

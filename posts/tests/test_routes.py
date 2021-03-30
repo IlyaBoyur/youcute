@@ -18,6 +18,7 @@ class PostsRoutesTests(TestCase):
             # Static URLs
             "/": reverse("index"),
             "/new/": reverse("new_post"),
+            "/new_group/": reverse("new_group"),
             "/follow/": reverse("follow_index"),
             # Non static URLs
             f"/{user.username}/": reverse("profile", args=[user.username]),
