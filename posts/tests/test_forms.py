@@ -8,7 +8,7 @@ from django.test import TestCase, override_settings
 from django.test.client import Client
 from django.urls import reverse
 
-from posts.models import Comment, Group, Post, User
+from posts.models import Comment, Group, Post, User, UserProfile
 
 
 USER_NAME = "TestUser"
@@ -19,6 +19,7 @@ GROUP_SLUG_OTHER = "test-group-slug-other"
 INDEX_URL = reverse("index")
 NEW_POST_URL = reverse("new_post")
 NEW_GROUP_URL = reverse("new_group")
+PROFILE_EDIT_URL = reverse("profile_edit")
 # NON STATIC URLS
 PROFILE_URL = reverse("profile", args=[USER_NAME])
 GROUP_URL = reverse("group_posts", args=[GROUP_SLUG])
@@ -199,19 +200,14 @@ class GroupFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = User.objects.create_user(username=USER_NAME)
-        cls.group = Group.objects.create(
-            title="Тестовая группа",
-            slug=GROUP_SLUG,
-        )
+        user = User.objects.create_user(username=USER_NAME)
         cls.guest_client = Client()
         cls.authorized_client = Client()
-        cls.authorized_client.force_login(cls.user)
+        cls.authorized_client.force_login(user)
 
     def test_create_group(self):
         """Валидная форма создает Group."""
         groups_count = Group.objects.count()
-        self.assertEqual(groups_count, 1)
         form_data = {
             "title": "Заголовок другой тестовой группы",
             "slug": GROUP_SLUG_OTHER,

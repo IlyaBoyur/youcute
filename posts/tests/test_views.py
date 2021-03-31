@@ -73,7 +73,7 @@ class PostsPagesTests(TestCase):
         super().tearDownClass()
 
     def test_page_show_post_in_context(self):
-        """Контекст шаблона ссодержит 'post'."""
+        """Контекст шаблона содержит 'post'."""
         cache.clear()
         urls_with_page = [
             [INDEX_URL, self.guest_client],
