@@ -98,19 +98,3 @@ class Follow(models.Model):
         on_delete=models.CASCADE,
         related_name="following",
     )
-
-
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    image = models.ImageField(
-        "Аватар",
-        upload_to="profiles/",
-        blank=True,
-        null=True,
-        help_text="Загрузите фотографию",
-    )
-    description = models.TextField(
-        "Об авторе",
-        blank=True,
-        help_text="Расскажите о себе",
-    )

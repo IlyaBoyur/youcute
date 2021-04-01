@@ -8,7 +8,7 @@ from django.test import TestCase, override_settings
 from django.test.client import Client
 from django.urls import reverse
 
-from posts.models import Comment, Group, Post, User, UserProfile
+from posts.models import Comment, Group, Post, User
 
 
 USER_NAME = "TestUser"
