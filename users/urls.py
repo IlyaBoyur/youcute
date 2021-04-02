@@ -6,7 +6,7 @@ urlpatterns = [
     path("signup/",
          views.SignUp.as_view(),
         name="signup"),
-    path("profile_edit/",
+    path("user_edit/",
          views.UserEditView.as_view(),
-         name="profile_edit"),
+         name="user_edit"),
 ]
