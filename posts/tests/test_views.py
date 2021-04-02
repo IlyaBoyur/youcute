@@ -93,7 +93,7 @@ class PostsPagesTests(TestCase):
                 self.assertEqual(self.post, context_post)
 
     def test_page_show_group_in_context(self):
-        """Контекст шаблона ссодержит 'group'."""
+        """Контекст шаблона содержит 'group'."""
         response = self.guest_client.get(GROUP_URL)
         self.assertEqual(self.group, response.context["group"])
 
@@ -103,7 +103,7 @@ class PostsPagesTests(TestCase):
         self.assertNotIn(self.post, response.context["page"])
 
     def test_page_show_author_in_context(self):
-        """Контекст шаблона ссодержит 'author'."""
+        """Контекст шаблона содержит 'author'."""
         urls = [
             PROFILE_URL,
             self.POST_URL,
