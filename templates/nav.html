@@ -1,4 +1,5 @@
 <nav class="navbar navbar-expand-sm navbar-dark bg-primary fixed-top">
+  {% load static %}
   <a class="navbar-brand" href="{% url 'index' %}">
     {% include 'logo.html' with color_dark=True %}
   </a>
@@ -14,38 +15,58 @@
       <li class="nav-item">
         <a class="nav-link" href="{% url 'index' %}">Главная</a>
       </li>
-      {% if user.is_authenticated %}
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'new_post' %}">Новая запись</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'new_group' %}">Новая группа</a>
-        </li>
-      {% endif %}
-    </ul>
+    </ul><!-- navbar-nav -->
     <ul class="navbar-nav navbar-right">
       {% if user.is_authenticated %}
+
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" 
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAdd" 
           role="button" data-toggle="dropdown" aria-haspopup="true"
-          aria-expanded="false">{{ user.username }}</a>
-          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+          aria-expanded="false">
+            <img class="nav-img" src="{% static 'plus.svg' %}" alt="Добавить" height="30" width="30"/>
+          </a>
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownAdd">
+            <a class="dropdown-item" href="{% url 'new_post' %}">Новая запись</a>
+            <a class="dropdown-item" href="{% url 'new_group' %}">Новая группа</a>
+          </div><!-- dropdown-menu -->
+        </li><!-- nav-item dropdown-->
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownUser" 
+          role="button" data-toggle="dropdown" aria-haspopup="true"
+          aria-expanded="false">
+          {% if user.profile.image %}
+            {% load thumbnail %}
+            {% thumbnail user.profile.image "100x100" crop="center" upscale=True as im %}
+              <img class="nav-img rounded-circle" src="{{ im.url }}" width="30" height="30">
+            {% endthumbnail %}
+          {% else %}
+            <img class="nav-img" src="{% static 'nav_no_avatar.svg' %}" width="30" height="30" alt="Avatar Logo" >
+          {% endif %}
+          </a>
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownUser">
+            <span class="dropdown-item-text">{{ user.username }}</span>
+            <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="{% url 'profile' user.username %}">Мой профиль</a>
             <a class="dropdown-item" href="{% url 'profile_edit' %}">Изменить профиль</a>
             <a class="dropdown-item" href="{% url 'password_change' %}">Изменить пароль</a>
             <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'user_edit' %}">Настройки</a>
+            <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="{% url 'logout' %}">Выйти</a>
-          </div>
-        </li>
+          </div><!-- dropdown-menu -->
+        </li><!-- nav-item dropdown-->
 
       {% else %}
+
         <li class="nav-item">
           <a class="nav-link" href="{% url 'login' %}">Войти</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'signup' %}">Регистрация</a>
         </li>
+
       {% endif %}
-    </ul>
+    </ul><!-- navbar-nav -->
   </div>
 </nav> 
