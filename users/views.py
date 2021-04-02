@@ -11,7 +11,7 @@ class SignUp(CreateView):
     template_name = "signup.html"
 
 
-class  UserEditView(UpdateView):
+class UserEditView(UpdateView):
     form_class = EditForm
     success_url = reverse_lazy("index")
     template_name = "registration/user_edit.html"

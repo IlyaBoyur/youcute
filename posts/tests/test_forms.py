@@ -19,7 +19,6 @@ GROUP_SLUG_OTHER = "test-group-slug-other"
 INDEX_URL = reverse("index")
 NEW_POST_URL = reverse("new_post")
 NEW_GROUP_URL = reverse("new_group")
-PROFILE_EDIT_URL = reverse("profile_edit")
 # NON STATIC URLS
 PROFILE_URL = reverse("profile", args=[USER_NAME])
 GROUP_URL = reverse("group_posts", args=[GROUP_SLUG])
