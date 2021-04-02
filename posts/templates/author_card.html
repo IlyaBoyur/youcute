@@ -1,16 +1,21 @@
-<div class="card">
-
+<div class="card border-0">
+  {% load thumbnail %}
+  {% thumbnail author.profile.image "250x250" crop="center" upscale=True as im %}
+    <img class="card-img-top rounded-circle" src="{{ im.url }}">
+  {% endthumbnail %}
   <div class="card-body">
-    <div class="h2">
-      {{ author.get_full_name }} 
-    </div>
-    <a href="{% url 'profile' username=author.username %}">
-      <div class="h3">
-        @{{ author.username }}
-      </div>
-    </a>
-  </div><!-- card-body -->
 
+    <h4 class="card-title">
+      {{ author.username }}
+    </h4>
+    <h5 class="card-title">
+      {{ author.get_full_name }} 
+    </h5>
+    <p class="card-text">
+      {{ author.profile.bio|linebreaksbr }}
+    </p>
+  </div><!-- card-body -->
+ 
   <ul class="list-group list-group-flush">
     <li class="list-group-item">
       <div class="h6 text-muted">
@@ -23,6 +28,7 @@
         Записей: {{ author.posts.count }}
       </div>
     </li>
+
   </ul>
 
 </div><!-- card -->
