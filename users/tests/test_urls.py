@@ -28,7 +28,7 @@ class UsersURLTests(TestCase):
         cls.authorized_client.force_login(user)
         cls.authorized_client_with_profile = Client()
         cls.authorized_client_with_profile.force_login(user_with_profile)
-    
+
     def test_posts_url_exists_at_desired_location(self):
         """Страницы возвращают ожидаемый код ответа
         соответствующему клиенту."""

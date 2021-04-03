@@ -66,10 +66,13 @@ class ProfileFormTests(TestCase):
             data=form_data,
             follow=True,
         )
-        self.assertRedirects(response, reverse("profile", args=[USER_NAME_ADDS_PROFILE]))
+        self.assertRedirects(response,
+                             reverse("profile", args=[USER_NAME_ADDS_PROFILE]))
         self.assertTrue(hasattr(response.context["author"], 'profile'))
-        self.assertEqual(response.context["author"].profile.bio, form_data["bio"])
-        self.assertEqual(response.context["author"].profile.image, "profiles/small_forms.gif")
+        self.assertEqual(response.context["author"].profile.bio,
+                         form_data["bio"])
+        self.assertEqual(response.context["author"].profile.image,
+                         "profiles/small_forms.gif")
 
     def test_profile_edit(self):
         """Валидная форма обновляет 'profile'."""
@@ -145,32 +148,3 @@ class ProfileFormTests(TestCase):
                     with self.subTest(value=value):
                         form_field = response.context["form"].fields.get(value)
                         self.assertIsInstance(form_field, expected_type)
-
-
-
-
-
-# class  ProfileEditView(UpdateView):
-#     form_class = ProfileForm
-#     success_url = reverse_lazy("index")
-#     template_name = "registration/profile_edit.html"
-
-#     def get_object(self):
-#         return self.request.user.profile
-
-
-# class  ProfileCreateView(CreateView):
-#     form_class = ProfileForm
-#     success_url = reverse_lazy("index")
-#     template_name = "registration/profile_create.html"
-
-#     def form_valid(self, form):
-#         form.instance.user = self.request.user
-#         return super().form_valid(form)
-
-            # path("profile_create/",
-    #      views.ProfileCreateView.as_view(),
-    #      name="profile_create"),
-    # path("profile_edit/",
-    #      views.ProfileEditView.as_view(),
-    #      name="profile_edit"),

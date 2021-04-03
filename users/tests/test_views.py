@@ -23,4 +23,3 @@ class UsersPagesTests(TestCase):
         """Контекст шаблона содержит 'profile'."""
         response = self.authorized_client_with_profile.get(PROFILE_EDIT_URL)
         self.assertEqual(self.profile, response.context["profile"])
-
