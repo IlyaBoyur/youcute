@@ -48,7 +48,11 @@
             <span class="dropdown-item-text">{{ user.username }}</span>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="{% url 'profile' user.username %}">Мой профиль</a>
-            <a class="dropdown-item" href="{% url 'profile_edit' %}">Изменить профиль</a>
+            {% if user.profile %}
+              <a class="dropdown-item" href="{% url 'profile_edit' %}">Изменить профиль</a>
+            {% else %}
+              <a class="dropdown-item" href="{% url 'profile_create' %}">Создать профиль</a>
+            {% endif %}
             <a class="dropdown-item" href="{% url 'password_change' %}">Изменить пароль</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="{% url 'user_edit' %}">Настройки</a>
