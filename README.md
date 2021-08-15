@@ -18,6 +18,7 @@ pip install -r requirements.txt
 ```
 2. Start the app
 ```bash
+python manage.py migrate
 python manage.py runserver
 ```
 3. Enjoy!
