@@ -1,6 +1,10 @@
-# Youcute: Soial network for pet owners
-Developed MVC, реализованы пагинация постов, кэширование, JOIN запросы, верификация при регистрации, смена и восстановление пароля через почту; написаны тесты для проверки работы сайта
-Stack: Python 3, Django, bootstrap, SQLite3, pytest, unittest
+# Youcute: Social network for pet owners
+* Developed with MVC architecture
+* Realized: pagination, page cache, JOIN requests.
+* Registration verification.
+* Password change/recovery via e-mail
+* Service functionality tests
+Stack: Python 3, Django, Bootstrap, SQLite3, pytest, unittest
 
 To test functionality:
 1. Prepare workspace
