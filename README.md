@@ -30,4 +30,5 @@ python manage.py runserver
 ```
 ### 5. Enjoy!
 Project is avaliable on http://127.0.0.1:8000/
+
 Examine Django Admin with user=admin, password=admin here: http://127.0.0.1:8000/admin
