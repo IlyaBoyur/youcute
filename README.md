@@ -11,7 +11,7 @@ To test functionality:
 In project folder:
 ```bash
 python -m venv venv
-source venv/bin/activate # Linux/Mac OS: source venv/bin/activate
+source venv/bin/activate # Windows (Git Bash/WSL): source venv/Scripts/activate
 pip install -r requirements.txt
 ```
 ### 2. Create project database and migrate it
